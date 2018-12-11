@@ -47,29 +47,10 @@ export const elementErrorHandler = (fn) => (commandName, commandFn) => {
 
         try {
             return fn(commandName, commandFn).apply(this, args)
-        } catch (error ) {
-            if (error.message.includes(`stale element reference`)) {
-                let currentElement = this;
-
-                // Generate selector array
-                let selectors = [];
-                do {
-                    selectors.push(currentElement.selector);
-                    currentElement = currentElement.parent || {};
-                } while (currentElement.elementId);
-                // Iterator is currently set to Browser
-                selectors.reverse();
-
-                // Chain elements through the array
-                const newElement =  selectors.reduce((elementPromise, selector) =>
-                    elementPromise.then((element) => element.$(selector)), Promise.resolve(currentElement));
-
-                //Retry the command with the refetched Element
-                return fn(commandName, commandFn).apply(newElement, args)
-            }
-
-            throw error
-        }
+        } catch(error) {
+            console.log('here!!!');
+            throw error;
+        };
     }
 
 }

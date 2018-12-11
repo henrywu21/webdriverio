@@ -72,6 +72,17 @@ describe('webdriver request', () => {
             expect(req.emit).toBeCalledWith('response', { result: expectedResponse })
         })
 
+        it('should short circuit if request throws a stale element exception', () => {
+            const req = new WebDriverRequest('', '')
+            req.emit = jest.fn()
+
+            const opts = Object.assign(req.defaultOptions, { uri: { path: '/wd/hub/failing' } })
+            expect(req._request(opts, 2)).rejects.toEqual(new Error('Error: Could not send request'))
+
+            const
+
+        })
+
         it('should retry requests but still fail', async () => {
             const req = new WebDriverRequest('POST', '/session')
             req.emit = jest.fn()

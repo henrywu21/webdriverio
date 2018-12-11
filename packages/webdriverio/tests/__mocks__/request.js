@@ -126,6 +126,11 @@ const requestMock = jest.fn().mockImplementation((params, cb) => {
         break
     }
 
+    if (params.uri.path === '/wd/hub/stale') {
+
+    }
+
+
     /**
      * simulate failing response
      */

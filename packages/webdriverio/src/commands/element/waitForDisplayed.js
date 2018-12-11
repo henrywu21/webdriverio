@@ -28,6 +28,14 @@
  */
 
 export default async function waitForDisplayed (ms, reverse = false) {
+
+    /**
+     * ensure that ms is set properly
+     */
+    if (typeof ms !== 'number') {
+        ms = this.options.waitforTimeout
+    }
+
     /**
      * if element wasn't found in the first place wait for its existance first
      */
@@ -35,19 +43,29 @@ export default async function waitForDisplayed (ms, reverse = false) {
         await this.waitForExist(ms)
     }
 
-    /*
-     * ensure that ms is set properly
-     */
-    if (typeof ms !== 'number') {
-        ms = this.options.waitforTimeout
-    }
-
     const isReversed = reverse ? '' : 'not '
     const errorMsg = `element ("${this.selector}") still ${isReversed}displayed after ${ms}ms`
 
     return this.waitUntil(async () => {
-        const isVisible = await this.isElementDisplayed(this.elementId)
+        let isVisible;
+        //Stale Elements always return true
+        //Checking existence again
+        try {
+            const element = await this.parent.$(this.selector);
+            isVisible = await element.isElementDisplayed(element.elementId);
+        } catch (error) {
+            if (error.message.includes("stale element reference")) {
+                await this.refetch().then(element => {
+                    this.elementId = element.elementId;
+                    this.parent = element.parent;
+                })
+
+                isVisible = await this.isElementDisplayed(this.elementId)
+            }
+            throw error;
+        }
 
         return isVisible !== reverse
+
     }, ms, errorMsg)
 }
