@@ -28,19 +28,18 @@
  */
 
 export default async function waitForDisplayed (ms, reverse = false) {
-
-    /**
-     * ensure that ms is set properly
-     */
-    if (typeof ms !== 'number') {
-        ms = this.options.waitforTimeout
-    }
-
     /**
      * if element wasn't found in the first place wait for its existance first
      */
     if (!this.elementId && !reverse) {
         await this.waitForExist(ms)
+    }
+
+    /*
+     * ensure that ms is set properly
+     */
+    if (typeof ms !== 'number') {
+        ms = this.options.waitforTimeout
     }
 
     const isReversed = reverse ? '' : 'not '
