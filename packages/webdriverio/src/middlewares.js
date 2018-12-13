@@ -1,4 +1,5 @@
 import logger from '@wdio/logger'
+import refetch from './utils/refetchElement'
 
 const log = logger('webdriverio')
 
@@ -48,9 +49,16 @@ export const elementErrorHandler = (fn) => (commandName, commandFn) => {
         try {
             return fn(commandName, commandFn).apply(this, args)
         } catch(error) {
-            console.log('here!!!');
+            if (error.message.includes("stale element reference")) {
+                refetch.call(this).then(element => {
+                    this.elementId = element.elementId;
+                    this.parent = element.parent;
+                });
+
+                return fn(commandName, commandFn).apply(this, args)
+            }
             throw error;
-        };
+        }
     }
 
 }

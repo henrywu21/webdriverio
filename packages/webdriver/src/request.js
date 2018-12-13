@@ -106,7 +106,7 @@ export default class WebDriverRequest extends EventEmitter {
 
             /**
              * stop retrying if totalRetryCount was exceeded or there is no reason to
-             * retry, e.g. if sessionId is invalid, or stale element
+             * retry, e.g. if sessionId is invalid
              */
             if (retryCount >= totalRetryCount || error.message.includes('invalid session id')) {
                 log.error('Request failed due to', error)

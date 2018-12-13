@@ -46,25 +46,8 @@ export default async function waitForDisplayed (ms, reverse = false) {
     const errorMsg = `element ("${this.selector}") still ${isReversed}displayed after ${ms}ms`
 
     return this.waitUntil(async () => {
-        let isVisible;
-        //Stale Elements always return true
-        //Checking existence again
-        try {
-            const element = await this.parent.$(this.selector);
-            isVisible = await element.isElementDisplayed(element.elementId);
-        } catch (error) {
-            if (error.message.includes("stale element reference")) {
-                await this.refetch().then(element => {
-                    this.elementId = element.elementId;
-                    this.parent = element.parent;
-                })
-
-                isVisible = await this.isElementDisplayed(this.elementId)
-            }
-            throw error;
-        }
+        const isVisible = await this.isElementDisplayed(this.elementId)
 
         return isVisible !== reverse
-
     }, ms, errorMsg)
 }
