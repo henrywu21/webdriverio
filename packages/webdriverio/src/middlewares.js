@@ -1,5 +1,5 @@
 import logger from '@wdio/logger'
-import refetch from './utils/refetchElement'
+import refetchElement from './utils/refetchElement'
 
 const log = logger('webdriverio')
 
@@ -33,7 +33,19 @@ export const elementErrorHandler = (fn) => (commandName, commandFn) => {
                     () => {
                         return this.parent.$(this.selector).then((elem) => {
                             this.elementId = elem.elementId
-                            return fn(commandName, commandFn).apply(this, args)
+                            try{
+                                return fn(commandName, commandFn).apply(this, args)
+                            } catch(error) {
+                                if (error.message.includes("stale element reference")) {
+                                    refetchElement.call(this).then(element => {
+                                        this.elementId = element.elementId;
+                                        this.parent = element.parent;
+                                    });
+
+                                    return fn(commandName, commandFn).apply(this, args)
+                                }
+                                throw error;
+                            }
                         })
                     },
                     /**
@@ -50,7 +62,7 @@ export const elementErrorHandler = (fn) => (commandName, commandFn) => {
             return fn(commandName, commandFn).apply(this, args)
         } catch(error) {
             if (error.message.includes("stale element reference")) {
-                refetch.call(this).then(element => {
+                refetchElement.call(this).then(element => {
                     this.elementId = element.elementId;
                     this.parent = element.parent;
                 });
