@@ -16,17 +16,40 @@ export default class WebDriver {
         const params = validateConfig(DEFAULTS, options)
         logger.setLevel('webdriver', params.logLevel)
 
+        /**
+         * the user could have passed in either w3c style or jsonwp style caps
+         * and we want to pass both styles to the server, which means we need
+         * to check what style the user sent in so we know how to construct the
+         * object for the other style
+         */
+        const [w3cCaps, jsonwpCaps] = params.capabilities && params.capabilities.alwaysMatch
+            /**
+             * in case W3C compliant capabilities are provided
+             */
+            ? [params.capabilities, params.capabilities.alwaysMatch]
+            /**
+             * otherwise assume they passed in jsonwp-style caps (flat object)
+             */
+            : [{ alwaysMatch: params.capabilities, firstMatch: [{}] }, params.capabilities]
+
         const sessionRequest = new WebDriverRequest(
             'POST',
             '/session',
             {
-                capabilities: params.capabilities, // W3C compliant
-                desiredCapabilities: params.capabilities // JSONWP compliant
+                capabilities: w3cCaps, // W3C compliant
+                desiredCapabilities: jsonwpCaps // JSONWP compliant
             }
         )
 
         const response = await sessionRequest.makeRequest(params)
-        params.requestedCapabilities = params.capabilities
+        /**
+         * save original set of capabilities to allow to request the same session again
+         * (e.g. for reloadSession command in WebdriverIO)
+         */
+        params.requestedCapabilities = { w3cCaps, jsonwpCaps }
+        /**
+         * save actual receveived session details
+         */
         params.capabilities = response.value.capabilities || response.value
         params.isW3C = isW3CSession(response.value)
 
@@ -43,6 +66,8 @@ export default class WebDriver {
             throw new Error('sessionId is required to attach to existing session')
         }
 
+        logger.setLevel('webdriver', options.logLevel)
+
         options.capabilities = options.capabilities || {}
         options.isW3C = options.isW3C || true
         const prototype = Object.assign(getPrototype(options.isW3C), proto)
@@ -56,6 +81,7 @@ export default class WebDriver {
     static get DEFAULTS () {
         return DEFAULTS
     }
+
     /**
      * Protocols
      */

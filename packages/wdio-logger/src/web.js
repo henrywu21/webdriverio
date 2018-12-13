@@ -5,3 +5,6 @@ export default function getLogger (component) {
         return acc
     }, {})
 }
+
+// logging interface expects a 'setLevel' method
+getLogger.setLevel = () => {}
