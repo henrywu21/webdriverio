@@ -1,6 +1,7 @@
 import BrowserstackService from '../src/service'
 import request from 'request';
 import logger from '@wdio/logger'
+
 jest.mock('request', () => ({
     put: jest.fn(),
     get: jest.fn()

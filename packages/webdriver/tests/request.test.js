@@ -72,15 +72,18 @@ describe('webdriver request', () => {
             expect(req.emit).toBeCalledWith('response', { result: expectedResponse })
         })
 
-        it('should short circuit if request throws a stale element exception', () => {
-            const req = new WebDriverRequest('', '')
+        it('should short circuit if request throws a stale element exception', async () => {
+            const req = new WebDriverRequest('POST', 'session/:sessionId/element')
             req.emit = jest.fn()
 
-            const opts = Object.assign(req.defaultOptions, { uri: { path: '/wd/hub/failing' } })
-            expect(req._request(opts, 2)).rejects.toEqual(new Error('Error: Could not send request'))
+            const opts = Object.assign(req.defaultOptions, { uri: { path: '/wd/hub/stale' }, body: { foo: 'bar' } })
 
-            const
-
+            expect(req._request(opts)).rejects.toEqual(new Error('stale element reference: element is not attached to the page document'))
+            expect(req.emit.mock.calls).toHaveLength(1)
+            expect(warn.mock.calls).toHaveLength(1)
+            expect(warn.mock.calls).toEqual([['Request encountered a stale element - terminating request']])
+            warn.mockClear();
+            request.mockClear()
         })
 
         it('should retry requests but still fail', async () => {

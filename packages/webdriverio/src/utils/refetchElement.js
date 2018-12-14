@@ -1,7 +1,7 @@
 export default function refetchElement () {
     let currentElement = this;
 
-    return new Promise (() => {
+    return new Promise ( async () => {
         let selectors = [];
 
         //Crawl back to the browser object, and cache all selectors
@@ -12,11 +12,13 @@ export default function refetchElement () {
         selectors.reverse();
 
         // Beginning with the browser object, rechain
-        const element = selectors.reduce((element, selector) => {
-            const newElement = element.$(selector);
-            newElement.waitForExist();
+        const element = await selectors.reduce(async (elementPromise, selector) => {
+            const resolvedElement = await elementPromise;
+            const newElement = await resolvedElement.$(selector);
+            console.log(newElement);
+            await newElement.waitForExist();
             return newElement;
-        }, currentElement);
+        }, Promise.resolve(currentElement));
 
         this.parent = element.parent;
         this.elementId = element.elementId;

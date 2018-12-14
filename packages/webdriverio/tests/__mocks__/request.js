@@ -39,17 +39,20 @@ const requestMock = jest.fn().mockImplementation((params, cb) => {
         break
     case `/wd/hub/session/${sessionId}/element`:
         value = {
-            [ELEMENT_KEY]: genericElementId
+            [ELEMENT_KEY]: genericElementId,
+            waitForExist: () => {}
         }
         break
     case `/wd/hub/session/${sessionId}/element/some-elem-123/element`:
         value = {
-            [ELEMENT_KEY]: genericSubElementId
+            [ELEMENT_KEY]: genericSubElementId,
+            waitForExist: () => {}
         }
         break
     case `/wd/hub/session/${sessionId}/element/${genericSubElementId}/element`:
         value = {
-            [ELEMENT_KEY]: genericSubSubElementId
+            [ELEMENT_KEY]: genericSubSubElementId,
+            waitForExist: () => {}
         }
         break
     case `/wd/hub/session/${sessionId}/element/${genericElementId}/rect`:
@@ -131,7 +134,14 @@ const requestMock = jest.fn().mockImplementation((params, cb) => {
     }
 
     if (params.uri.path === '/wd/hub/stale') {
+        let error = new Error('element is not attached to the page document')
+        error.name = 'stale element reference';
 
+        return cb(error, {
+            headers: { foo: 'bar' },
+            statusCode: 404,
+            body: {}
+        }, {});
     }
 
 
