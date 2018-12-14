@@ -15,7 +15,6 @@ export default function refetchElement () {
         const element = await selectors.reduce(async (elementPromise, selector) => {
             const resolvedElement = await elementPromise;
             const newElement = await resolvedElement.$(selector);
-            console.log(newElement);
             await newElement.waitForExist();
             return newElement;
         }, Promise.resolve(currentElement));
