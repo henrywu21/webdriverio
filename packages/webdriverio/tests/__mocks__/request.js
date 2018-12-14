@@ -39,20 +39,17 @@ const requestMock = jest.fn().mockImplementation((params, cb) => {
         break
     case `/wd/hub/session/${sessionId}/element`:
         value = {
-            [ELEMENT_KEY]: genericElementId,
-            waitForExist: () => {}
+            [ELEMENT_KEY]: genericElementId
         }
         break
     case `/wd/hub/session/${sessionId}/element/some-elem-123/element`:
         value = {
-            [ELEMENT_KEY]: genericSubElementId,
-            waitForExist: () => {}
+            [ELEMENT_KEY]: genericSubElementId
         }
         break
     case `/wd/hub/session/${sessionId}/element/${genericSubElementId}/element`:
         value = {
-            [ELEMENT_KEY]: genericSubSubElementId,
-            waitForExist: () => {}
+            [ELEMENT_KEY]: genericSubSubElementId
         }
         break
     case `/wd/hub/session/${sessionId}/element/${genericElementId}/rect`:
