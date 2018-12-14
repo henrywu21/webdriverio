@@ -37,7 +37,7 @@ export const elementErrorHandler = (fn) => (commandName, commandFn) => {
                                 return fn(commandName, commandFn).apply(this, args)
                             } catch(error) {
                                 if (error.message.includes("stale element reference")) {
-                                    refetchElement.call(this).then(element => {
+                                    refetchElement(this).then(element => {
                                         this.elementId = element.elementId;
                                         this.parent = element.parent;
                                     });
@@ -62,7 +62,7 @@ export const elementErrorHandler = (fn) => (commandName, commandFn) => {
             return fn(commandName, commandFn).apply(this, args)
         } catch(error) {
             if (error.message.includes("stale element reference")) {
-                refetchElement.call(this).then(element => {
+                refetchElement(this).then(element => {
                     this.elementId = element.elementId;
                     this.parent = element.parent;
                 });

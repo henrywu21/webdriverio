@@ -1,27 +1,16 @@
-export default function refetchElement () {
-    let currentElement = this;
+export default async function refetchElement (currentElement) {
+    let selectors = [];
 
-    return new Promise ( async () => {
-        let selectors = [];
+    //Crawl back to the browser object, and cache all selectors
+    while(currentElement.elementId && currentElement.parent) {
+        selectors.push(currentElement.selector);
+        currentElement = currentElement.parent;
+    }
+    selectors.reverse();
 
-        //Crawl back to the browser object, and cache all selectors
-        while(currentElement.elementId && currentElement.parent) {
-            selectors.push(currentElement.selector);
-            currentElement = currentElement.parent;
-        }
-        selectors.reverse();
-
-        // Beginning with the browser object, rechain
-        const element = await selectors.reduce(async (elementPromise, selector) => {
-            const resolvedElement = await elementPromise;
-            const newElement = await resolvedElement.$(selector);
-            await newElement.waitForExist();
-            return newElement;
-        }, Promise.resolve(currentElement));
-
-        this.parent = element.parent;
-        this.elementId = element.elementId;
-
-        return this;
-    })
+    // Beginning with the browser object, rechain
+    return selectors.reduce(async (elementPromise, selector) => {
+        const resolvedElement = await elementPromise;
+        return resolvedElement.$(selector);
+    }, Promise.resolve(currentElement));
 }
